@@ -19,11 +19,14 @@ main p{
     margin-bottom: 2px;
 }
 
-#quizContainer {
-    padding: 10px 50px 10px 50px;
+
+/* #optionsAnswerContainer */
+body #container {
+ 
     margin-left: 250px;
     height: 250px;
-    width: 252px;
+    width: 500px;
     display: flex;
     flex-direction: column;
+  
 }
