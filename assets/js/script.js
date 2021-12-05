@@ -9,9 +9,9 @@ var askInitialsLabel = document.createElement("label");
 var initialsInput = document.createElement("input");
 var initialsSubmit = document.createElement("input");
 
-var timerCount = 15;
+var timerCount = 115;
 var wins=0;
-var j=0;
+var j=0;   // Question counter
 
 
 var questionsArray=[
@@ -28,16 +28,36 @@ var answersArray=[
 ];
 var correct_answer=[2,3,3,3];
 
+function registerScores(initialsData, wins){
+  
+  var studentsScores= JSON.parse(localStorage.getItem("studentsScores"));
+    
+  //console.log(studentsScores);
+  console.log("Student Scores: " + studentsScores);
+  console.log("Last Student: " + laststudentScores);
+
+  if (studentsScores !== null) {
+    var laststudentScores = { 
+        initials: initialsData,
+        score: wins,};    
+    studentsScores.GameQuiz.push(laststudentScores);
+    localStorage.setItem("studentsScores",JSON.stringify(studentsScores));
+  } else {
+      var laststudentScores = { GameQuiz: [{
+          initials: initialsData,
+          score: wins,}
+       ]};    
+      localStorage.setItem("studentsScores",JSON.stringify(laststudentScores));
+  }
+}
 
 
 function endGame(){
 
-  var  list = document.getElementById("optionsAnswerContainer"); 
-  
   questionQuiz.textContent = "All done!";
-  list.remove();   // Removing Cleaning for new messages
+  optionsAnsContainer.remove(); // Removing Cleaning for new messages
 
-  finalScore.textContent = "Your final score is:" + timerCount;
+  finalScore.textContent = "Your final score is:" + wins;
   askInitialsLabel.textContent = "Enter initials";
   initialsSubmit.textContent = "Submit";
  
@@ -52,24 +72,21 @@ function endGame(){
   initialsSubmit.setAttribute("class", "submit");
 
   container.addEventListener("click", function(event) {
+    event.preventDefault();
     var element = event.target;
-    console.log(element);
+    console.log("Dentro del Listener: " + element);
     
     if (element.matches(".submit")){
       console.log("oprimio submit");
       var initialsData = document.getElementById("initialDataInput");
-      console.log("valor: " + initialsData.value);
+      console.log("iniciales: " + initialsData.value);
      // if (initialsData.value != null && initialsData.length > 0){
-        var studentScore = {
-          initials: initialsData.value.trim(),
-          score: timerCount,
-          };
-        console.log(studentScore);
-        localStorage.setItem("studentScore", JSON.stringify(studentScore));
+       
+        console.log("Dentro del matches summit");
+        
+        registerScores(initialsData.value,wins);
 
-      //} else {console.log("No entro");}
-
-     
+        
     }
 
    });
@@ -77,50 +94,51 @@ function endGame(){
 }
 
 
-function askQuestion(x){
-  var j = x;
-  if (j < questionsArray.length) {
+function askQuestion(j){
+  console.log("El valor de j = " + j);
+  console.log("Longitud " + questionsArray.length);
+  // if the question counter less than the questions array lenght
+    if (j < questionsArray.length) {
+      // assing and displaying the question
     questionQuiz.textContent = questionsArray[j];
+
+    // Get index for all box classes to display aswers options 
     var answerOption = optionsAnsContainer.getElementsByClassName("box");
   
     for(var i = 0; i < answerOption.length ; i++ ){
         var k = i + 1;
+        console.log("El valor de i" + i);
+        console.log("El valor de k" + k);
         answerOption[i].innerText = k +"." + answersArray[j][i];
       } 
-    resultAnswer.textContent ="";
+    
   
     optionsAnsContainer.addEventListener("click", function(event) {
+      event.preventDefault();
       if (timerCount > 0 ){
         var element = event.target;
-              
+        resultAnswer.textContent ="";
         if (element.matches(".box")){
             var numberOp = element.getAttribute("data-number");
             if (numberOp == correct_answer[j]){
               resultAnswer.textContent ="Correct";
               wins++;
-            } 
-            else {
+            } else {
               resultAnswer.textContent ="Wrong";
               timerCount=timerCount - 10;
             }    
             j++;
-            
             askQuestion(j);    
-            
         }
       }
     });      
+  } else {
+    wins=timerCount;
+    clearInterval(timer);
+    console.log("en el else donde j es mayor a la longitud del arreglo de preguntas")
+    endGame();
   }
 }
-
-/** function renderResults() {
-  var lastGrade = JSON.parse(localStorage.getItem("studentGrade"));
-  if (lastGrade !== null) {
-    document.querySelector(".message").textContent = lastGrade.student + 
-    " received a/an " + lastGrade.grade
-  }
-} **/
-
 
 
 function startTimer() {
@@ -133,6 +151,7 @@ function startTimer() {
         clearInterval(timer);
         timerCount = 0;
         timerElement.textContent = 0;
+        wins=0;
         endGame();
       } else {
         timerElement.textContent = timerCount;

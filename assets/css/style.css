@@ -30,3 +30,14 @@ body #container {
     flex-direction: column;
   
 }
+
+div.box{
+    border-color: white;
+    border-style: solid;
+    background-color:rgb(189, 128, 189);
+    cursor: pointer;
+}
+
+h4.resultAnswer{
+      border-top: solid grey;
+}
